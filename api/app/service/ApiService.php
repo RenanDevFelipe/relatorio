@@ -1,44 +1,24 @@
 <?php 
 
-require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
 
-class FulltrackApi {
-    private $baseUrl = "https://ws.fulltrack2.com/";
 
-    public function getAllTrackers() {
-        return $this->request("trackers/all");
+class getDatabase {
+
+    private $db;
+
+    public function __construct()
+    {
+        $db = new Database();
+        $this->db = $db->getConnection();
     }
-
-    public function getAllClient() {
-        return $this->request("clients/all");
-    }
-
-    private function request($endpoint) {
-        $url = $this->baseUrl . $endpoint;
-
-        $ch = curl_init($url);
-
-        // Configurar cabeçalhos
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "APIKEY: " . APIKEY,
-            "SECRETKEY: " . SECRETKEY,
-            "Accept: application/json"
-        ]);
-
-        // Retorna resposta em vez de imprimir na tela
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        // Executa requisição
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        // Se houver erro, retorna o status
-        if ($httpCode !== 200) {
-            return json_encode(["erro" => "Erro ao conectar com a API externa.", "status" => $httpCode]);
-        }
-
-        return json_decode($response, true);
+    
+    public function listAllUser(){
+            $stmt = $this->db->prepare("SELECT * FROM users");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
     }
 }
+
 ?>
